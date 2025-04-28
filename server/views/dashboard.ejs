@@ -1,0 +1,166 @@
+<%- include('partials/header') %>
+<section id="dashboard" class="section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Dashboard</h2>
+    <%- include('partials/submenu') %>
+  </div>
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4" id="dashboard-data">
+
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    await TokenCheck(); 
+    await fetchDashboardData();
+  });
+
+  async function fetchDashboardData() {
+    try {
+      const response = await fetch('/api/dashboard', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('jwtToken')
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+
+      const data = await response.json();
+      const dashboardData = document.getElementById('dashboard-data');
+
+      // Clear previous data
+      dashboardData.innerHTML = '';
+
+      // Helper function to create and append cards
+      function createCard(title, content) {
+        const card = document.createElement('div');
+        card.className = 'col-md-4';
+        card.innerHTML = `<div class="card"><div class="card-body"><h5>${title}</h5><p>${content}</p></div></div>`;
+        dashboardData.appendChild(card);
+      }
+
+      // Helper function to create and append tables
+      function createTable(title, headers, rows) {
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'col-md-12';
+        const tableCard = document.createElement('div');
+        tableCard.className = 'card';
+        const tableCardBody = document.createElement('div');
+        tableCardBody.className = 'card-body';
+        const tableTitle = document.createElement('h5');
+        tableTitle.textContent = title;
+
+        const table = document.createElement('table');
+        table.className = 'table table-striped';
+
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headers.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => {
+          const tr = document.createElement('tr');
+          row.forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell;
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        tableCardBody.appendChild(tableTitle);
+        tableCardBody.appendChild(table);
+        tableCard.appendChild(tableCardBody);
+        tableContainer.appendChild(tableCard);
+        dashboardData.appendChild(tableContainer);
+      }
+
+      // Conditional checks and HTML creation
+      if ('setupCompleted' in data) {
+        createCard('Setup Completed', data.setupCompleted ? 'Yes' : 'No');
+      }
+
+      if ('totalClients' in data) {
+        createCard('Total Clients', data.totalClients);
+      }
+
+      if ('totalStaff' in data) {
+        createCard('Total Staff', data.totalStaff);
+      }
+
+      if ('countTodaysMessages' in data) {
+        createCard('Today\'s Messages', data.countTodaysMessages);
+      }
+
+      if ('unreadMsgCount' in data) {
+        createCard('Unread Messages', data.unreadMsgCount);
+      }
+
+      if ('totalReminders' in data) {
+        createCard('Total Reminders', data.totalReminders);
+      }
+
+      if ('todayPayments' in data) {
+        createCard('Today\'s Payments', data.todayPayments);
+      }
+
+      if ('thisWeekPayments' in data) {
+        const headers = ['Reminder', 'Amount', 'Notification Date'];
+        const rows = data.thisWeekPayments.map(payment => [
+          payment.payReminderID.name,
+          payment.amount,
+          new Date(payment.notificationDate).toLocaleDateString()
+        ]);
+        createTable('This Week\'s Payments', headers, rows);
+      }
+
+      if ('last10NewUsers' in data) {
+        const headers = ['Name', 'Email'];
+        const rows = data.last10NewUsers.map(user => [
+          user.name,
+          user.email || '-'
+        ]);
+        createTable('Last 10 New Users', headers, rows);
+      }
+
+      if ('todaysMessages' in data) {
+        const headers = ['Name', 'Message'];
+        const rows = data.todaysMessages.map(message => [
+          message.name,
+          message.message
+        ]);
+        createTable('User Messages', headers, rows);
+      }
+
+      if ('unreadMessages' in data) {
+        const headers = ['Name', 'Message'];
+        const rows = data.unreadMessages.map(message => [
+          message.name,
+          message.message
+        ]);
+        createTable('Unread User Messages', headers, rows);
+      }
+
+    } catch (error) {
+      console.error('Fetch dashboard data error:', error.message);
+      showToast('Failed to fetch dashboard data', 'danger');
+    }
+  }
+</script>
+
+
+
+<%- include('partials/footer') %>

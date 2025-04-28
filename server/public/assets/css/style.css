@@ -1,0 +1,174 @@
+.navbar-nav-2 {
+    width: 100%;
+    justify-content: center;
+}
+.text-right{
+    justify-content: right;
+
+}
+
+.toast-body {
+    background: #fff;
+}
+
+span.sortable {
+    cursor: pointer;
+    color: #0d6efd;
+}
+
+.toast-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1500; /* Ensure it's above other content */
+  }
+
+
+  /* General Toast Styling */
+.toast {
+    border-radius: 0.5rem; /* Rounded corners */
+    padding-top: 1rem; /* Add padding */
+    min-width: 300px; /* Minimum width */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1); /* Shadow for better visibility */
+    font-family: Arial, sans-serif; /* Font styling */
+  }
+  
+  /* Toast Header */
+  .toast-header {
+    background-color: #007bff; /* Blue background for header */
+    color: #fff; /* White text color */
+    font-weight: bold; /* Bold text */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Bottom border */
+  }
+  
+  /* Toast Body */
+  .toast-body {
+    background-color: #fff !important; /* White background for body */
+    color: #333 !important; /* Dark text color */
+  }
+  
+  /* Success Toast */
+  .text-bg-success {
+    background-color: #d4edda !important; /* Light green background */
+    color: #155724 !important; /* Dark green text */
+  }
+  
+  /* Error Toast */
+  .text-bg-danger {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Dark red text */
+  }
+  
+  /* Info Toast */
+  .text-bg-info {
+    background-color: #d1ecf1; /* Light blue background */
+    color: #0c5460; /* Dark blue text */
+  }
+  
+  /* Warning Toast */
+  .text-bg-warning {
+    background-color: #fff3cd; /* Light yellow background */
+    color: #856404; /* Dark yellow text */
+  }
+  
+  /* Toast Close Button */
+  .toast .btn-close {
+    opacity: 1; /* Ensure close button is visible */
+  }
+
+  #dashboard-menu .nav-link.active {
+    font-weight: bold;
+    color: #007bff; /* Change this to your preferred active link color */
+}
+
+div#errorMessage {
+  margin: 10px 0;
+  color: red;
+}
+
+div#clientContent {
+  text-align: center;
+}
+
+.chat-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1200;
+}
+
+.chat-header {
+  cursor: pointer;
+  background-color: rgb(61 77 106) !important;
+}
+
+.chat-messages {
+  height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  flex-grow: 1;
+}
+
+.message {
+  margin-bottom: 10px;
+}
+
+.user {
+  text-align: right;
+}
+
+.user .message-content {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.bot .message-content {
+  background-color: #e9ecef;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.open-chat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 50%;
+  padding: 15px 20px;
+  font-size: 24px;
+  z-index: 1000;
+}
+
+a#scroll-top {
+  display: none !important;
+}
+
+
+.message.bot-typing .message-content {
+  font-style: italic;
+  color: #aaa7a7;
+  animation: typingAnimation 1s infinite;
+}
+
+@keyframes typingAnimation {
+  0% {
+      opacity: 0.5;
+  }
+  50% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0.5;
+  }
+}

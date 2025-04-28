@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+
+<section id="verify-otp" class="verify-otp section">
+<div class="container section-title" data-aos="fade-up">
+    <h2>Verification</h2>
+</div>
+
+<div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+    <div class="offset-3 col-lg-6">
+        <form id="verifyOtpForm">
+        <div class="row gy-4">
+            <div class="col-md-12">
+                <label for="otp" class="pb-2">Enter Email</label>
+                <input type="email" class="form-control" id="verifyEmail" name="verifyEmail">
+            </div>
+            <div class="col-md-12">
+            <label for="otp" class="pb-2">Enter OTP</label>
+            <input type="text" class="form-control" id="otp" name="otp">
+            </div>
+            <div class="col-md-12">
+            <div class="error-message text-danger"></div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="verifyOtpBtn">Verify</button>
+            </div>
+            </div>
+            <div class="col-md-12 pt-4 text-end">
+            <a href="#" class="resendOtpLink">Resend OTP</a>
+            </div>
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+</section>
+<%- include('partials/footer') %>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    $("#verifyEmail").val(email);
+</script>
+

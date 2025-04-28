@@ -1,0 +1,41 @@
+.about-us {
+  padding: 30px;
+
+}
+
+
+
+.about-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.about-text {
+  flex: 1;
+  padding: 20px;
+}
+
+.about-image {
+  padding: 20px;
+}
+
+.about-image img {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.about-image img {
+  width: 100%; /* Ensure image takes full width */
+  border-radius: 8px; /* Rounded corners */
+  transition: opacity 0.3s ease; /* Smooth opacity transition */
+}
+
+.about-image:hover img {
+  opacity: 0.8; /* Change opacity on hover */
+  transform: scale(1.05); /* Scale image slightly */
+}

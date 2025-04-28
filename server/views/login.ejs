@@ -1,0 +1,106 @@
+<%- include('partials/header') %>
+
+<section id="login" class="login section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Login</h2>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="offset-3 col-lg-6">
+        <form id="loginForm">
+          <div class="row gy-4">
+            <div class="col-md-12">
+              <label for="usernameOrEmail" class="pb-2">Username or Email</label>
+              <input type="text" name="usernameOrEmail" id="usernameOrEmail" class="form-control">
+            </div>
+            <div class="col-md-12">
+              <label for="password" class="pb-2">Password</label>
+              <input type="password" class="form-control" name="password" id="password">
+            </div>
+            <div class="col-md-12">
+              <div class="error-message text-danger"></div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                  <span class="btn-txt">Login</span>
+                  <div class="spinner-border text-primary text-light loading" style="display: none;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-12 text-end">
+              <a href="#" class="forgot-password-link">Forgot Password?</a>
+            </div>
+            
+          </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotPasswordForm" style="display: none;">
+          <div class="row gy-4">
+            <div class="col-md-12">
+              <label for="forgotEmail" class="pb-2">Enter your Email</label>
+              <input type="email" class="form-control" id="forgotEmail" name="forgotEmail">
+            </div>
+            <div class="col-md-12">
+              <div class="error-message text-danger"></div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="submitForgotBtn">
+                  <span class="btn-txt">Submit</span>
+                  <div class="spinner-border text-primary text-light loading" style="display: none;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </button>
+              </div>
+              <div class="col-md-12 pt-4 text-end">
+                <a href="#" class="loginFormLink">Login</a> 
+              </div>
+            </div>
+          </div>
+        </form>
+        <!-- Reset Password OTP Form (to be shown after successful forgot password submission) -->
+        <form id="newPassForm" style="display: none;">
+          <div class="row gy-4">
+            <div class="col-md-12">
+              <label for="otp" class="pb-2">Enter OTP</label>
+              <input type="hidden" class="form-control" id="forgotEmailOTP" name="forgotEmailOTP">
+              <input type="text" class="form-control" id="otp" name="otp">
+            </div>
+            <div class="col-md-12">
+              <label for="otp" class="pb-2">Enter New Password</label>
+              <input type="password" class="form-control" id="newPassword" name="newPassword">
+            </div>
+            <div class="col-md-12">
+              <div class="error-message text-danger"></div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="submitPasswordBtn">Submit</button>
+              </div>
+            </div>
+            <div class="col-md-12 pt-4 text-end">
+                <a href="#" class="loginFormLink">Login</a> | 
+                <a href="#" class="forgot-password-link">Resend</a>              </div>
+              <p class="mt-3 text-center">Please check your spam box if you do not receive the OTP within a few minutes.</p>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    localStorage.setItem('jwtToken', token);
+  }
+  const jwtToken = localStorage.getItem('jwtToken');
+
+  if (jwtToken) {
+    window.location.href = '/dashboard';
+  }
+     
+
+</script>
+<%- include('partials/footer') %>

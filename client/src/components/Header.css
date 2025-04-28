@@ -1,0 +1,37 @@
+.header-navbar {
+  border-bottom: 1px solid #ccc;
+  transition: background-color 0.3s;
+}
+
+.header-navbar .btn-link {
+  color: #002366; 
+  font-weight: bold;
+  font-size: 1rem;
+  text-decoration:none;
+}
+
+.header-navbar .btn-link:hover {
+  text-decoration: underline;
+}
+
+.header-navbar a.active.nav-link .btn-link {
+  color: #001a4d; 
+  text-decoration: underline;
+}
+
+.header-navbar .navbar-brand img {
+  border-radius: 50%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); 
+}
+
+
+
+@media (max-width: 768px) {
+  .header-navbar .navbar-collapse {
+    text-align: center; 
+  }
+
+  .header-navbar .btn-link {
+    padding: 0.5rem 1rem;
+  }
+}

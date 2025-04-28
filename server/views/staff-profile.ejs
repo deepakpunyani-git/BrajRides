@@ -1,0 +1,103 @@
+<%- include('partials/header') %>
+
+<section id="profile" class="profile section">
+    <div class="container section-title" data-aos="fade-up">
+      <h2>Profile</h2>
+      <%- include('partials/submenu') %>
+    </div>
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <form id="profileForm" enctype="multipart/form-data">
+        <div class="row gy-4">
+          <div class="col-lg-6 offset-3">
+            <div class="mb-3 text-center">
+              <img id="profilePic" src="" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+              <label for="profilePicInput" class="form-label d-block">Profile Picture</label>
+              <input type="file" id="profilePicInput" class="form-control mt-2" name="profile_pic">
+            </div>
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name">
+            </div>
+            <div class="mb-3">
+              <label for="gender" class="form-label">Gender</label>
+              <select id="gender" class="form-select" name="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary">Update Profile</button>
+            </div>
+          </div>
+        </div>
+      </form>
+      
+    </div>
+</section>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    await TokenCheck();
+    await populateProfileForm();
+
+    document.getElementById('profileForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const token = localStorage.getItem('jwtToken');
+      const form = document.getElementById('profileForm');
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('/api/user/satff-profile-update', {
+          method: 'PATCH',
+          headers: {
+            'Authorization': token
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to update profile');
+        }
+
+        showToast('Profile updated successfully!', 'success');
+        await populateProfileForm(); // Refresh profile data
+      } catch (error) {
+        showToast(error.message, 'danger');
+      }
+    });
+  });
+
+  async function populateProfileForm() {
+  const token = localStorage.getItem('jwtToken');
+  try {
+    const response = await fetch('/api/user/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': token
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch profile data');
+    }
+
+    const data = await response.json();
+
+    // Check and set values if elements exist
+    const nameElement = document.getElementById('name');
+    if (nameElement) nameElement.value = data.name || '';
+
+    const genderElement = document.getElementById('gender');
+    if (genderElement) genderElement.value = data.gender || 'other';
+
+    const profilePicElement = document.getElementById('profilePic');
+    if (profilePicElement) profilePicElement.src = data.profile_pic || '/assets/img/default-avatar.jpg';
+
+  } catch (error) {
+    showToast(error.message, 'danger');
+  }
+}
+</script>
+<%- include('partials/footer') %>

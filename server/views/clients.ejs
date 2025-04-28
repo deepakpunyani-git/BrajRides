@@ -1,0 +1,288 @@
+<%- include('partials/header') %>
+<section id="clients" class="section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Clients</b></h2>
+    <%- include('partials/submenu') %>
+  </div>
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-12">
+        <div class="page-content">
+          <div class="row">
+            <div class="col-sm-8">
+              <h2>Clients <b>List</b></h2>
+            </div>
+            <div class="col-sm-4 text-end">
+            </div>
+          </div>
+        </div>
+        <div class="filters">
+          <form id="filtersForm" class="row g-3">
+            <div class="col-md-6">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" id="name" class="form-control" name="name" placeholder="Enter client name">
+            </div>
+            <div class="col-md-3">
+              <label for="sortBy" class="form-label">Sort By</label>
+              <select id="sortBy" class="form-select" name="sortBy">
+                <option value="name">Name</option>
+                <option value="dateCreated">Date Created</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="sortOrder" class="form-label">Sort Order</label>
+              <select id="sortOrder" class="form-select" name="sortOrder">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
+            <div class="col-md-12 text-end">
+              <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+          </form>
+        </div>
+        <table id="clients-table" class="table table-bordered mt-3">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Email Status</th>
+              <th scope="col">Block Status</th>
+              <th scope="col">Date Created</th>
+              <th scope="col">Date Updated</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body">
+            <!-- Rows will be dynamically inserted here -->
+          </tbody>
+        </table>
+        <!-- Pagination controls -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center" id="pagination">
+            <!-- Pagination items will be dynamically inserted here -->
+          </ul>
+        </nav>
+        <!-- Loader -->
+        <div id="loader" class="text-center d-none">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Client Details Modal -->
+<div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="clientModalLabel">Client Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="clientContent">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Change Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to change the status to <strong id="newStatus"></strong>?</p>
+        <input type="hidden" id="clientId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmStatusBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="blockModal" tabindex="-1" aria-labelledby="blockModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="blockModalLabel">Change Block Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to <strong id="blockAction"></strong> this client?</p>
+        <input type="hidden" id="userId">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmBlockBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await TokenCheck(); // Check for valid token
+  await fetchClients(); // Fetch and display clients
+
+  document.getElementById('filtersForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    fetchClients();
+  });
+});
+
+async function fetchClients(page = 1) {
+  const loader = document.getElementById('loader');
+  loader.classList.remove('d-none');
+
+  const name = document.getElementById('name').value;
+  const sortBy = document.getElementById('sortBy').value;
+  const sortOrder = document.getElementById('sortOrder').value;
+
+  try {
+    const response = await fetch(`/api/clients?page=${page}&limit=10&name=${name}&sortBy=${sortBy}&sortOrder=${sortOrder}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('jwtToken')
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch clients');
+    }
+
+    const data = await response.json();
+    populateClientsTable(data.clients);
+    setupPagination(data.totalPages, page);
+
+    loader.classList.add('d-none');
+  } catch (error) {
+    console.error('Fetch clients error:', error.message);
+    showToast('Failed to fetch clients', 'danger');
+    loader.classList.add('d-none');
+  }
+}
+
+function populateClientsTable(clients) {
+  const tableBody = document.getElementById('clients-table-body');
+  tableBody.innerHTML = '';
+
+  clients.forEach((client, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <th scope="row">${index + 1}</th>
+      <td>${client.name}</td>
+      <td>${client.email}</td>
+      <td>${client.status}</td>
+      <td>${client.block_user ? 'Blocked' : 'Active'}</td>
+      <td>${new Date(client.dateCreated).toLocaleDateString()}</td>
+      <td>${client.dateUpdated ? new Date(client.dateUpdated).toLocaleDateString() : '-'}</td>
+      <td>
+        <button class="btn btn-info btn-sm view-client-btn" data-client="${encodeURIComponent(JSON.stringify(client))}">View</button>
+        <button class="btn btn-warning btn-sm block-client-btn" data-id="${client._id}" data-status="${client.block_user}">${client.block_user ? 'Unblock' : 'Block'}</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+
+    // Add event listener for view client button
+    row.querySelector('.view-client-btn').addEventListener('click', (e) => {
+      const client = JSON.parse(decodeURIComponent(e.currentTarget.getAttribute('data-client')));
+      showClientModal(client);
+    });
+
+    // Add event listener for block/unblock button
+    row.querySelector('.block-client-btn').addEventListener('click', (e) => {
+      const userId = e.currentTarget.getAttribute('data-id');
+      const currentStatus = e.currentTarget.getAttribute('data-status') === 'true';
+      showBlockModal(userId, currentStatus);
+    });
+  });
+}
+
+function setupPagination(totalPages, currentPage) {
+  const pagination = document.getElementById('pagination');
+  pagination.innerHTML = '';
+
+  for (let i = 1; i <= totalPages; i++) {
+    const pageItem = document.createElement('li');
+    pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+    pageItem.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+    pagination.appendChild(pageItem);
+
+    pageItem.querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+      fetchClients(i);
+    });
+  }
+}
+
+function showClientModal(client) {
+  const clientContent = document.getElementById('clientContent');
+  clientContent.innerHTML = `
+    <p>
+      <img id="profilePic" src="${client.profile_pic || '/assets/img/default-avatar.jpg'}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+    </p>
+    <p><strong>Name:</strong> ${client.name}</p>
+    <p><strong>Email:</strong> ${client.email}</p>
+    <p><strong>Email Status:</strong> ${client.status}</p>
+    <p><strong>Date Created:</strong> ${new Date(client.dateCreated).toLocaleDateString()}</p>
+    <p><strong>Date Updated:</strong> ${client.dateUpdated ? new Date(client.dateUpdated).toLocaleDateString() : '-'}</p>
+    <p><strong>Gender:</strong> ${client.gender || '-' }</p>
+  `;
+  const clientModal = new bootstrap.Modal(document.getElementById('clientModal'));
+  clientModal.show();
+}
+
+function showBlockModal(userId, currentStatus) {
+  const blockAction = document.getElementById('blockAction');
+  blockAction.textContent = currentStatus ? 'unblock' : 'block';
+  const confirmBlockBtn = document.getElementById('confirmBlockBtn');
+
+  confirmBlockBtn.onclick = async () => {
+    await blockUnblockUser(userId, !currentStatus);
+  };
+
+  const blockModal = new bootstrap.Modal(document.getElementById('blockModal'));
+  blockModal.show();
+}
+
+async function blockUnblockUser(userId, newStatus) {
+  try {
+    const response = await fetch(`/api/user/block-status/${userId}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('jwtToken')
+      },
+      body: JSON.stringify({ block_user: newStatus })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json(); // Parse the JSON error response
+      throw new Error(errorData.message || 'Failed to update block status');
+    }
+
+    await fetchClients(); // Refresh client list
+    hideModal('blockModal')
+
+  } catch (error) {
+    console.error('Update block status error:', error.message);
+    showToast('Failed to update status', 'danger');
+  }
+}
+
+</script>
+<%- include('partials/footer') %>

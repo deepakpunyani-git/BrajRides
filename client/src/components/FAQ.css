@@ -1,0 +1,34 @@
+.faq-section {
+  background-color: #f9f9f9; /* Light background color */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding for content */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+
+.faq-title {
+  color: #002366; /* Custom color for the title */
+  font-size: 2rem; /* Font size for the title */
+}
+.faq-section .card {
+  margin-bottom: 1rem; /* Space between each FAQ card */
+  transition: transform 0.3s ease; /* Smooth transition for scaling */
+}
+
+.faq-section  .card:hover {
+  transform: scale(1.02); /* Scale effect on hover */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Increased shadow on hover */
+}
+
+.accordion-header {
+  background-color: #e3f2fd; /* Light blue background for headers */
+  cursor: pointer; /* Pointer cursor for hover effect */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.accordion-header:hover {
+  background-color: #c3e0fb; /* Slightly darker blue on hover */
+}
+
+.accordion-body {
+  color: #555; /* Dark gray for the answer text */
+}
