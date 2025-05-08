@@ -10,8 +10,11 @@ import './Hero.css';
 
 const HeroSection = ({ locations }) => {
   const [location, setLocation] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+const [startDate, setStartDate] = useState(tomorrow);
+const [endDate, setEndDate] = useState(tomorrow);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -92,7 +95,7 @@ const HeroSection = ({ locations }) => {
                     onChange={(date) => setStartDate(date)}
                     className="form-control"
                     placeholderText="Start Date"
-                    minDate={new Date()}
+                    minDate={tomorrow}
                     dateFormat="dd-MM-YYYY"
                   />
                 </Form.Group>
@@ -103,7 +106,7 @@ const HeroSection = ({ locations }) => {
                     onChange={(date) => setEndDate(date)}
                     className="form-control"
                     placeholderText="End Date"
-                    minDate={startDate || new Date()}
+                    minDate={startDate || tomorrow}
                     dateFormat="dd-MM-YYYY"
                   />
                 </Form.Group>

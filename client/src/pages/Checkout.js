@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { setBookingData, clearBookingData, completePayment } from '../redux/actions/bookingActions';
+import { clearSearchFilter } from '../redux/actions/searchActions'; 
 
 const Checkout = () => {
   const [card, setCard] = useState({ name: '', number: '', exp: '', cvv: '' });
@@ -17,7 +18,17 @@ const Checkout = () => {
   const dispatch = useDispatch();
 
   const { bookingData } = useSelector(state => state.booking);
-
+  let totalDays = 0;
+  let totalAmount = 0;
+  if (bookingData) {
+    const start = new Date(bookingData.startDate);
+    const end = new Date(bookingData.endDate);
+    const diffTime = Math.abs(end - start);
+    totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+  
+    const pricePerDay = bookingData.vehicle.price || 0;
+    totalAmount = totalDays * pricePerDay;
+  }
   useEffect(() => {
     if (!bookingData) {
       const stored = localStorage.getItem('bookedVehicle');
@@ -25,7 +36,7 @@ const Checkout = () => {
         dispatch(setBookingData(JSON.parse(stored)));
       } else {
         toast.dismiss();
-        toast.error('No booking data found!');
+        //toast.error('No booking data found!');
         navigate('/pricing');
       }
     }
@@ -98,6 +109,8 @@ const Checkout = () => {
       return false;
     }
 
+    
+
     return true;
   };
 
@@ -118,14 +131,16 @@ const Checkout = () => {
     };
 
     const result = await dispatch(completePayment(cardPayload, navigate));
-    console.log(result,'result')
     setLoading(false);
 
     if (result.success) {
            setCard({ name: '', number: '', exp: '', cvv: '' });
      setConfirmChecked(false);
       localStorage.removeItem('bookedVehicle');
-     setTimeout(() => navigate('/account'), 250);
+      dispatch(clearBookingData());
+      dispatch(clearSearchFilter());
+
+     setTimeout(() => navigate('/my-bookings'), 250);
 
     }
   };
@@ -133,6 +148,8 @@ const Checkout = () => {
   const cancelBooking = () => {
     localStorage.removeItem('bookedVehicle');
     dispatch(clearBookingData());
+    dispatch(clearSearchFilter());
+
     toast.dismiss();
     toast.info('Booking cancelled.');
     navigate('/pricing');
@@ -158,9 +175,17 @@ const Checkout = () => {
                   <strong>Location:</strong> {bookingData.vehicle.location?.name || bookingData.location}<br />
                   <strong>Type:</strong> {bookingData.type}<br />
                   <strong>Electric:</strong> {bookingData.isElectric === 'Yes' ? 'Yes' : 'No'}<br />
-                  <strong>Price Per Day:</strong> ₹{bookingData.vehicle.price}<br />
+
+
                   <strong>From:</strong> {new Date(bookingData.startDate).toLocaleDateString()}<br />
-                  <strong>To:</strong> {new Date(bookingData.endDate).toLocaleDateString()}
+                  <strong>To:</strong> {new Date(bookingData.endDate).toLocaleDateString()}<br />
+
+                  <strong>Price Per Day:</strong> ₹{bookingData.vehicle.price}<br />
+                  <strong>Total Days:</strong> {totalDays} {totalDays === 1 ? 'day' : 'days'}<br />
+ <span className="text-success fw-bold">   <strong>Total Amount:</strong> ₹{totalAmount}</span><br />
+
+
+
                 </Card.Text>
               </Card.Body>
             </Card>

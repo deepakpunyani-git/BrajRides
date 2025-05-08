@@ -1,0 +1,198 @@
+<%- include('partials/header') %>
+<section id="dashboard" class="dashboard section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Vehicles</h2>
+    <%- include('partials/submenu') %>
+  </div>
+  
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-12">
+        <div class="page-content">
+          <div class="row">
+            <div class="col-sm-8">
+              <h2>Vehicle <b>Details</b></h2>
+            </div>
+          </div>
+        </div>
+
+        <div id="loader" class="text-center" style="display: none;">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form id="vehicleFilterForm" class="row g-2">
+      <div class="col-md-3">
+        <input type="text" class="form-control" id="filterBrand" placeholder="Search by Brand">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" id="filterType">
+          <option value="">All Types</option>
+          <option value="scooty">Scooty</option>
+          <option value="bike">Bike</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-grid">
+        <button type="button" id="applyFilterBtn">Apply Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+        <table id="vehicle-table" class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Brand</th>
+              <th scope="col">Model</th>
+              <th scope="col">Location</th>
+              <th scope="col">Price</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vehicle-table-body">
+            <!-- Vehicle data will be populated here -->
+          </tbody>
+        </table>
+         <!-- Pagination -->
+  <nav id="paginationNav" class="d-flex justify-content-center mt-3">
+    <ul class="pagination"></ul>
+  </nav>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="modal fade" id="viewVehicleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">View Vehicle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Brand:</strong> <span id="viewBrand"></span></p>
+        <p><strong>Model:</strong> <span id="viewModel"></span></p>
+        <p><strong>Location:</strong> <span id="viewLocation"></span></p>
+        <p><strong>Price:</strong> ₹<span id="viewPrice"></span></p>
+        <p><strong>Type:</strong> <span id="viewType"></span></p>
+        <p><strong>Electric:</strong> <span id="viewIsElectric"></span></p>
+        <img id="viewImage" src="" class="img-fluid mt-2 rounded" style="max-height: 200px;" />
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const token = localStorage.getItem('jwtToken');
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await TokenCheck();
+    await fetchVehiclesData(1);
+  });
+
+  document.getElementById('applyFilterBtn').addEventListener('click', async function (event) {
+    event.preventDefault();
+    await fetchVehiclesData(1);
+  });
+
+  let currentPage = 1;
+
+  async function fetchVehiclesData(page = 1) {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    const brand = document.getElementById('filterBrand').value.trim();
+    const type = document.getElementById('filterType').value;
+
+    const params = new URLSearchParams({ page, limit: 20 });
+    if (brand) params.append('brand', brand);
+    if (type) params.append('type', type);
+
+    try {
+      const response = await fetch(`/api/vehicles/by_staff_location?${params.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        }
+      });
+
+      const { vehicles, totalPages } = await response.json();
+      renderVehicleTable(vehicles);
+      renderPagination(totalPages, page);
+      currentPage = page;
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+    }
+
+    loader.style.display = 'none';
+  }
+
+  function renderPagination(totalPages, current) {
+    const pagination = document.querySelector('#paginationNav .pagination');
+    pagination.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.classList.add('page-item');
+      if (i === current) li.classList.add('active');
+
+      const btn = document.createElement('button');
+      btn.classList.add('page-link');
+      btn.textContent = i;
+      btn.addEventListener('click', () => fetchVehiclesData(i));
+
+      li.appendChild(btn);
+      pagination.appendChild(li);
+    }
+  }
+
+  function renderVehicleTable(vehicles) {
+    const tableBody = document.getElementById('vehicle-table-body');
+    tableBody.innerHTML = '';
+
+    vehicles.forEach((vehicle, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${vehicle.brand}</td>
+        <td>${vehicle.model}</td>
+        <td>${vehicle.location ? vehicle.location.name : 'N/A'}</td>
+        <td>${vehicle.price}</td>
+          <td>
+          <button class="btn btn-info btn-sm view-btn" data-vehicle="${vehicle._id}" data-bs-toggle="modal" data-bs-target="#viewVehicleModal">View</button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+
+  document.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('view-btn')) {
+      const vehicleId = e.target.getAttribute('data-vehicle');
+      try {
+        const res = await fetch(`/api/vehicles/${vehicleId}`, {
+          headers: { 'Authorization': token }
+        });
+        const vehicle = await res.json();
+
+        document.getElementById('viewBrand').textContent = vehicle.brand;
+        document.getElementById('viewModel').textContent = vehicle.model;
+        document.getElementById('viewLocation').textContent = vehicle.location?.name || '';
+        document.getElementById('viewPrice').textContent = vehicle.price;
+        document.getElementById('viewType').textContent = vehicle.type;
+        document.getElementById('viewIsElectric').textContent = vehicle.isElectric ? 'Yes' : 'No';
+        document.getElementById('viewImage').src = `/uploads/${vehicle.image || 'default.png'}`;
+      } catch (err) {
+        console.error('Failed to load vehicle data', err);
+      }
+    }
+
+  });
+
+</script>
+
+
+<%- include('partials/footer') %>

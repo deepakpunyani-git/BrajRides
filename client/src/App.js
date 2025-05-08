@@ -23,8 +23,11 @@ import Partner from './pages/Partner';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Checkout from "./pages/Checkout";
-import Account from "./pages/Account";
+import MyBookings from "./pages/MyBookings";
 import NotFound from './pages/NotFound';
+
+import FaqBot from './components/FaqBot';
+
 
 const AppContent = () => {
 
@@ -64,10 +67,10 @@ const AppContent = () => {
   }
 />
 <Route
-  path="/account"
+  path="/my-bookings"
   element={
     <PrivateRoute>
-        <Account />
+        <MyBookings />
     </PrivateRoute>
   }
 />
@@ -77,7 +80,7 @@ const AppContent = () => {
 
 
       </Routes>
-
+      <FaqBot />
       <Footer />
       <ToastContainer position="top-right" autoClose={3000} />
     </>

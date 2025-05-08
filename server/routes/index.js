@@ -10,6 +10,7 @@ const userRoutes = require('./user.Routes');
 const vehicleRoutes = require('./vehicleRoutes');
 const staffRoutes = require('./staffRoutes');
 const paymentRoutes = require('./paymentRoutes');
+const bookingRoutes = require('./bookingRoutes');
 
 router.use(clientRoutes);
 router.use(userRoutes);
@@ -19,6 +20,7 @@ router.use('/api/locations',locationRoutes);
 router.use('/api/auth',authRoutes);
 router.use('/api/vehicles',vehicleRoutes);
 router.use('/api/booking', paymentRoutes);
+router.use('/api/bookings', bookingRoutes);
 
 router.use(webPages);
 router.use(dashboardRoutes);

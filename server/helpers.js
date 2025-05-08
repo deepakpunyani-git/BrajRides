@@ -8,7 +8,7 @@ dotenv.config();
 const { JWT_SECRET , FAST2SMS_API_KEY , DEV } = process.env;
 
 function generateToken(user) {
-  const token = jwt.sign({ name: user.name, usertype: user.userType , _id:user._id }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({ name: user.name, userType: user.userType , _id:user._id }, JWT_SECRET, { expiresIn: '1d' });
   return token;
 
 }

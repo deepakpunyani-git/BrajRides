@@ -15,6 +15,7 @@ const updateProfileValidator = [
 
 ];
 const updateStaffProfileValidator = [
+
   body('name').notEmpty().withMessage('Name is required'),
   body('gender').notEmpty().withMessage('Gender is required').isIn(['male', 'female', 'other']).withMessage('Invalid gender'),
 

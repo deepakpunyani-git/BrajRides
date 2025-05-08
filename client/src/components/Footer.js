@@ -28,15 +28,16 @@ const Footer = () => {
           </Col>
           <Col md={4} className="footer-col">
             <h5>Contact Us</h5>
-            <p>Phone: +91843780780</p>
-            <p>Email: support@brajrides.com</p>
-            <p>Address: 123 Street Name, City, Country</p>
+            <p>Phone: <a href="tel:1234567890">+91 1234 567 890</a></p>
+            <p>Email: <a href="mailto:info@brajrides.com">info@brajrides.com</a></p>
+            <p>Address: Braj Rides Head Office, 123 Main Street, Mathura, Uttar Pradesh, India</p>
           </Col>
         </Row>
         <Row>
           <Col className="text-center">
-            <p className="footer-copyright">© 2024 brajRides. All rights reserved.</p>
-          </Col>
+          <p className="footer-copyright">
+  © {new Date().getFullYear()} brajRides. All rights reserved.
+</p>          </Col>
         </Row>
       </Container>
     </footer>

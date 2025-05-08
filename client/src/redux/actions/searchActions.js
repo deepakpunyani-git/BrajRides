@@ -4,3 +4,8 @@ export const setSearchFilter = (payload) => ({
   type: SET_SEARCH_FILTER,
   payload,
 });
+
+
+export const clearSearchFilter = () => ({
+  type: 'CLEAR_SEARCH_FILTER'
+});

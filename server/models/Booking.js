@@ -5,11 +5,11 @@ const bookingSchema = new mongoose.Schema(
     customerName: { type: String },
     vehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
+      ref: "RidesVehicle",
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "RidesUser",
     },
     dateFrom: {
       type: Date,
@@ -44,7 +44,38 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+
+    cancelRequest: {
+      type: Boolean,
+      default: false,
+    },
+    
+    cancelReason: {
+      type: String,
+    },
+    
+    cancelRequestedAt: {
+      type: Date,
+    },
+    
+    cancelRequestStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: "pending",
+
+    },
+    
+    cancelRequestActionBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RidesUser',
+    },
+    
+    cancelRequestActionAt: {
+      type: Date,
+    }, 
+
   },
+  
   { timestamps: true }
 );
 

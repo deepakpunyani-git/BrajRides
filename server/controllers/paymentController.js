@@ -1,6 +1,7 @@
-const Vehicle = require('../models/Vehicle');
+const Vehicle = require('../models/Vehicle'); 
 const Booking = require('../models/Booking');
-const { APIContracts, APIControllers } = require('authorizenet');
+const APIContracts = require('authorizenet').APIContracts;
+const APIControllers = require('authorizenet').APIControllers;
 
 exports.processPayment = async (req, res) => {
   const {
@@ -27,10 +28,15 @@ exports.processPayment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Vehicle not found' });
     }
 
+    // Check for conflicting confirmed bookings only
     const existingBooking = await Booking.findOne({
       vehicle: vehicleId,
+      status: "confirmed",
       $or: [
-        { dateFrom: { $lte: new Date(dateTo) }, dateTo: { $gte: new Date(dateFrom) } }
+        {
+          dateFrom: { $lte: new Date(dateTo) },
+          dateTo: { $gte: new Date(dateFrom) }
+        }
       ]
     });
 
@@ -38,13 +44,13 @@ exports.processPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Vehicle is already booked for these dates.' });
     }
 
-    // Calculate total days and amount
+    // Calculate number of days and total amount
     const start = new Date(dateFrom);
     const end = new Date(dateTo);
     const numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
     const totalAmount = vehicle.price * numberOfDays;
 
-    // Authorize.Net setup
+    // Authorize.Net payment setup
     const merchantAuthenticationType = new APIContracts.MerchantAuthenticationType();
     merchantAuthenticationType.setName(process.env.AUTHORIZE_NET_API_LOGIN_ID);
     merchantAuthenticationType.setTransactionKey(process.env.AUTHORIZE_NET_TRANSACTION_KEY);
@@ -56,8 +62,6 @@ exports.processPayment = async (req, res) => {
 
     const paymentType = new APIContracts.PaymentType();
     paymentType.setCreditCard(creditCard);
-
-  
 
     const transactionRequestType = new APIContracts.TransactionRequestType();
     transactionRequestType.setTransactionType(APIContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
@@ -75,6 +79,7 @@ exports.processPayment = async (req, res) => {
     ctrl.execute(async () => {
       const apiResponse = ctrl.getResponse();
       const response = new APIContracts.CreateTransactionResponse(apiResponse);
+
       if (response != null && response.getMessages().getResultCode() === APIContracts.MessageTypeEnum.OK) {
         const transactionResponse = response.getTransactionResponse();
         const transactionId = transactionResponse?.getTransId();

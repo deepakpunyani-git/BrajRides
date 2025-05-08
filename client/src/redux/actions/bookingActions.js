@@ -12,6 +12,7 @@ export const clearBookingData = () => ({
 
 export const completePayment = (card, navigate) => async (dispatch, getState) => {
   const { bookingData } = getState().booking;
+                toast.dismiss();
 
   if (!bookingData) {
     toast.error('No booking data.');
@@ -41,47 +42,64 @@ export const completePayment = (card, navigate) => async (dispatch, getState) =>
     if (res.data.success) {
       dispatch(clearBookingData());
       toast.success(`Payment successful! Booking ID: ${res.data.booking._id}`);
+      navigate('/my-bookings'); 
       return { success: true, bookingId: res.data.booking._id }; 
     } else {
       toast.error('Payment failed: ' + res.data.message);
       return { success: false, error: res.data.message }; 
     }
   } catch (err) {
-    toast.error('Something went wrong during payment.');
+    toast.error('Something went wrong during payment');
     return { success: false, error: err.message || 'Unexpected error' }; 
   }
 };
 
-
-
-export const getMyBookings = () => async (dispatch) => {
+export const getMyBookings = (filters) => async (dispatch) => {
   dispatch({ type: 'BOOKINGS_LOADING' });
+
   try {
     const token = localStorage.getItem('authToken');
-    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/bookings/me`, {
-      headers: { Authorization: token }
+
+    const params = new URLSearchParams();
+    if (filters.status) params.append('status', filters.status);
+    if (filters.location) params.append('location', filters.location);
+    params.append('page', filters.page);
+    params.append('limit', filters.limit);
+    params.append('sortBy', filters.sortBy);
+    params.append('order', filters.order);
+
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/bookings/my-bookings?${params.toString()}`, {
+      headers: { Authorization: token },
     });
 
     dispatch({
       type: 'SET_BOOKINGS',
-      payload: res.data.bookings
+      payload: {
+        bookings: res.data.bookings,
+        pagination : res.data.pagination,
+      },
     });
   } catch (err) {
+                toast.dismiss();
     toast.error('Failed to load bookings');
-    dispatch({ type: 'SET_BOOKINGS', payload: [] });
+    dispatch({
+      type: 'SET_BOOKINGS',
+      payload: { bookings: [], pagination : []},
+    });
   }
 };
 
-export const cancelBookingRequest = (id) => async (dispatch) => {
+export const requestBookingCancel = (id, reason) => async (dispatch, getState) => {
   try {
     const token = localStorage.getItem('authToken');
-    const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/bookings/${id}/cancel`, {}, {
+    const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/bookings/${id}/cancel-request`, { reason }, {
       headers: { Authorization: token }
     });
+                toast.dismiss();
 
     if (res.data.success) {
-      toast.success('Booking cancelled successfully');
-      dispatch(getMyBookings());
+      //toast.success('Cancellation request submitted');
+      //dispatch(getMyBookings(getState().booking.filters)); 
     } else {
       toast.error(res.data.message);
     }

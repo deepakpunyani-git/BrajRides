@@ -1,16 +1,17 @@
 .contact-us-section {
-    background-color: #f9f9f9; /* Light gray background */
-    padding: 20px; /* Padding for the section */
-    border-radius: 8px; /* Rounded corners */
+    background-color: #f9f9f9; 
+    padding: 20px;
+    border-radius: 8px;
   }
   
   .section-heading {
-    color: #002366; /* Custom color for the title */
-    font-size: 2rem; /* Font size for the title */
+    color: #002366; 
+    font-size: 2rem; 
   }
   
   .contact-info {
     margin-top: 20px; 
+    margin-bottom: 20px; 
     padding: 20px; 
     background-color: white; 
     border-radius: 8px; 

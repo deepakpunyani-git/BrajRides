@@ -9,11 +9,6 @@
       <form id="profileForm" enctype="multipart/form-data">
         <div class="row gy-4">
           <div class="col-lg-6 offset-3">
-            <div class="mb-3 text-center">
-              <img id="profilePic" src="" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
-              <label for="profilePicInput" class="form-label d-block">Profile Picture</label>
-              <input type="file" id="profilePicInput" class="form-control mt-2" name="profile_pic">
-            </div>
             <div class="mb-3">
               <label for="name" class="form-label">Name</label>
               <input type="text" class="form-control" id="name" name="name">
@@ -62,7 +57,7 @@
         }
 
         showToast('Profile updated successfully!', 'success');
-        await populateProfileForm(); // Refresh profile data
+        await populateProfileForm(); 
       } catch (error) {
         showToast(error.message, 'danger');
       }

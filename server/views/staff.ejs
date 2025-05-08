@@ -149,8 +149,7 @@
   </div>
 </div>
 
-<!-- Modal for changing location -->
-<!-- Modal for changing location -->
+
 <div class="modal fade" id="changeLocationModal" tabindex="-1" aria-labelledby="changeLocationModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -308,11 +307,10 @@ async function fetchStaffData(sortOrder = 'asc', sortBy = 'name') {
     const staffTableBody = document.getElementById('staff-table-body');
     const loader = document.getElementById('loader');
 
-    loader.style.display = 'block'; // Show loader
+    loader.style.display = 'block'; 
 
-    // Create a promise to wait for a minimum delay
     const waitFor = ms => new Promise(resolve => setTimeout(resolve, ms));
-    await waitFor(500); // Minimum wait time of 500 milliseconds
+    await waitFor(500); 
 
     try {
       const response = await fetch(`/api/staff?sortOrder=${sortOrder}&sortBy=${sortBy}`, {
@@ -329,12 +327,10 @@ async function fetchStaffData(sortOrder = 'asc', sortBy = 'name') {
 
       const staffList = await response.json();
       renderStaffTable(staffList);
-      // showToast('Staff data loaded successfully!', 'success');
     } catch (error) {
-      //console.error('Fetch error:', error.message);
       showToast('Failed to fetch staff data. Please refresh the page.', 'danger');
     } finally {
-      loader.style.display = 'none'; // Hide loader
+      loader.style.display = 'none'; 
     }
   }
 }
@@ -447,7 +443,6 @@ async function blockUnblockUser(userId, newStatus) {
     hideModal('blockModal')
     showToast('User block status updated successfully!', 'success');
   } catch (error) {
-    //console.error('Block/unblock error:', error.message);
     showToast(error.message, 'danger');
   }
 }
@@ -464,7 +459,7 @@ async function deleteUser(userId) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json(); // Parse the JSON error response
+      const errorData = await response.json(); 
       throw new Error(errorData.message || 'Failed to delete user');
     }
 
@@ -472,12 +467,10 @@ async function deleteUser(userId) {
     hideModal('deleteModal')
     showToast('User deleted successfully!', 'success');
   } catch (error) {
-    //console.error('Delete error:', error.message);
     showToast(error.message, 'danger');
   }
 }
 
-// Frontend validation for adding staff
 document.getElementById('addStaffForm').addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -554,7 +547,6 @@ async function addStaff(staff) {
 
     showToast('New staff added successfully!', 'success');
   } catch (error) {
-    //console.error('Add staff error:', error.message);
     showToast(error.message, 'danger');
   }
 }

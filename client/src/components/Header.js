@@ -70,8 +70,8 @@ const Header = () => {
 
             {isAuthenticated ? (
               <>
-                <Nav.Link as={Link} to="/account" className={isActive('/account') ? 'active' : ''}>
-                  <Button variant="outline-primary">ACCOUNT</Button>
+                <Nav.Link as={Link} to="/my-bookings" className={isActive('/my-bookings') ? 'active' : ''}>
+                  <Button variant="outline-primary">MY BOOKINGS</Button>
                 </Nav.Link>
                 <Nav.Link onClick={handleLogout}>
                   <Button variant="danger">LOGOUT</Button>

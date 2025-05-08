@@ -5,6 +5,8 @@ dotenv.config();
 const secretKey = process.env.JWT_SECRET;
 
 const verifyToken = (req, res, next) => {
+  // console.log('>>> verifyToken called');
+
     const token = req.headers.authorization;
     if (!token) {
         return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
@@ -21,9 +23,11 @@ const verifyToken = (req, res, next) => {
 };
 
 const checkUserType = (allowedUserTypes) => {
+  // console.log(allowedUserTypes)
   return (req, res, next) => {
     const user = req.user;
-    if (user && allowedUserTypes.includes(user.usertype)) {
+    // console.log(allowedUserTypes)
+    if (user && allowedUserTypes.includes(user.userType)) {
       next();
     } else {
       res.status(403).json({ success: false, message: 'Permission denied.' });

@@ -34,7 +34,7 @@ router.get('/verify-token', (req, res) => {
         const dashboardMenu = [];
         redirectTo = '/dashboard';
   
-        if (user.usertype === 'admin') {
+        if (user.userType === 'admin') {
             dashboardMenu.push(
                 { name: 'Dashboard', link: '/dashboard' , show:1},
                 { name: 'Manage Location', link: '/dashboard/location' , show:1 },
@@ -43,14 +43,14 @@ router.get('/verify-token', (req, res) => {
                 { name: 'Manage Clients', link: '/dashboard/clients' , show:1 },
                 { name: 'Manage Staff', link: '/dashboard/staff' , show:1 },
                 { name: 'Profile', link: '/dashboard/profile' , show:1 },
-                { name: 'Update Password', link: '/dashboard/update-password' , show:1 }
-  
+                { name: 'Update Password', link: '/dashboard/update-password' , show:1 },
+
             );
-        } else if (user.usertype === 'staff') {
+        } else if (user.userType === 'staff') {
             dashboardMenu.push(
                 { name: 'Dashboard', link: '/dashboard', show:1  },
-                { name: 'Manage Vehicles', link: '/dashboard/vehicles' , show:1 },
-                { name: 'Manage Bookings', link: '/dashboard/bookings' , show:1 },
+                { name: 'Manage Vehicles', link: '/dashboard/vehicles_by_staff_location' , show:1 },
+                { name: 'Manage Bookings', link: '/dashboard/bookings_by_staff_location' , show:1 },
                 { name: 'Profile', link: '/dashboard/staff-profile' , show:1 },
 
             );

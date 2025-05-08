@@ -23,10 +23,15 @@ router.get("/dashboard/location", async (req, res) => {
   res.render('location', { title:'BrajRides | Location Management', site:CLIENT_URL  });
 });
 
-router.get("/dashboard/bookings", async (req, res) => {
+router.get("/dashboard/bookings"  , async (req, res) => {
   const locations = await Location.find();
+  res.render('orders', { title:'BrajRides | Bookings Management', site:CLIENT_URL , locations:locations , usertype: "admin"   });
+});
 
-  res.render('orders', { title:'BrajRides | Bookings Management', site:CLIENT_URL , locations:locations  });
+
+router.get("/dashboard/bookings_by_staff_location"  , async (req, res) => {
+  const locations = await Location.find();
+  res.render('orders', { title:'BrajRides | Bookings Management', site:CLIENT_URL  , locations:locations ,  usertype: "staff"   });
 });
 
 router.get("/dashboard/staff", async (req, res) => {
@@ -41,6 +46,10 @@ router.get("/dashboard/vehicles", async (req, res) => {
   res.render('vehicle', { title:'BrajRides | Vehicle Management', site:CLIENT_URL , locations:locations  });
 });
 
+router.get("/dashboard/vehicles_by_staff_location", async (req, res) => {
+  const locations = await Location.find();
+  res.render('vehicles-staff', { title:'BrajRides | Vehicle Management', site:CLIENT_URL , locations:locations  });
+});
 
 router.get("/dashboard/clients", (req, res) => {
   res.render('clients', { title:'BrajRides | Clients Management' , site:CLIENT_URL  });

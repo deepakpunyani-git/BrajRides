@@ -4,7 +4,7 @@ export const fetchPopularVehicles = () => async (dispatch) => {
   try {
     dispatch({ type: "POPULAR_VEHICLES_REQUEST" });
 
-    const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/api/vehicles/popular`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/api/vehicles/popularBikes`);
 
     dispatch({
       type: "POPULAR_VEHICLES_SUCCESS",
@@ -26,7 +26,7 @@ export const fetchVehicles = (filters) => async (dispatch) => {
   try {
     dispatch({ type: 'BIKE_LIST_REQUEST' });
 
-    const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/api/vehicles/search`, { params: filters });
+    const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/api/vehicles/search`, filters);  
     dispatch({ type: 'BIKE_LIST_SUCCESS', payload: data });
   } catch (error) {
     dispatch({

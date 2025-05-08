@@ -13,6 +13,8 @@ const searchReducer = (state = initialState, action) => {
         ...state,
         ...action.payload,
       };
+      case 'CLEAR_SEARCH_FILTER':
+        return initialState;
     default:
       return state;
   }

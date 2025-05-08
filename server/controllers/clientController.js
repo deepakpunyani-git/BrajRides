@@ -2,9 +2,15 @@ const Client = require('../models/User');
 const { validationResult } = require('express-validator');
 
 exports.listClients = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
   try {
-    const { page = 1, limit = 10, name } = req.query;
-    const query = { usertype: 'client' };
+    const { page = 1, limit = 10 } = req.query;
+    const query = { userType: 'user' };
 
 
     const sortField = req.query.sortBy || 'name';
@@ -12,7 +18,7 @@ exports.listClients = async (req, res) => {
     const sort = { [sortField]: sortOrder };
 
     const clients = await Client.find(query)
-      .select('name email block_user status dateCreated dateUpdated gender')
+      .select(' phone block_user dateCreated dateUpdated')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit)

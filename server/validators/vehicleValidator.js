@@ -1,21 +1,27 @@
-const { body } = require('express-validator');
+const { body  , query} = require('express-validator');
 
-exports.addRideValidator = [
+exports.addVehicleValidator = [
   body('brand').notEmpty().withMessage('Brand is required'),
   body('model').notEmpty().withMessage('Model is required'),
   body('price').isNumeric().withMessage('Price must be a number'),
   body('type').isIn(['scooty', 'bike']).withMessage('Type must be either scooty or bike'),
-  body('location').notEmpty().withMessage('Location is required'),
+  body('location').notEmpty().withMessage('Location is required')
 ];
 
-exports.updateRideValidator = [
+exports.updateVehicleValidator = [
   body('brand').notEmpty().withMessage('Brand is required'),
   body('model').notEmpty().withMessage('Model is required'),
   body('price').isNumeric().withMessage('Price must be a number'),
   body('type').isIn(['scooty', 'bike']).withMessage('Type must be either scooty or bike'),
-  body('location').notEmpty().withMessage('Location is required'),
+  body('location').notEmpty().withMessage('Location is required')
 ];
 
+
+exports.validateVehicleFilters = [
+  query('brand').optional().isString().withMessage('Brand must be a string'),
+  query('location').optional().isMongoId().withMessage('Location must be a valid ID'),
+  query('type').optional().isIn(['scooty', 'bike']).withMessage('Invalid vehicle type'),
+];
 
 exports.validateVehicleSearch = [
   body('location')

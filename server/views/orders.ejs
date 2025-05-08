@@ -1,0 +1,338 @@
+<%- include('partials/header') %>
+
+<section id="dashboard" class="dashboard section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Bookings Management</h2>
+    <%- include('partials/submenu') %>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <!-- Filters -->
+    <div class="row gy-4">
+      <div class="col-lg-12">
+        <div class="page-content">
+          <div class="row">
+            <div class="col-sm-8">
+              <h2>Bookings <b>Details</b></h2>
+            </div>
+            <div class="col-sm-4 text-end">
+              <% if (usertype === 'admin') { %>
+                <select class="form-select" id="locationFilter">
+                  <option value="">All Locations</option>
+                  <% locations.forEach(location => { %>
+                    <option value="<%= location._id %>"><%= location.name %></option>
+                  <% }) %>
+                </select>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="text-center" style="display: none;">
+          <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+
+        <!-- Filter Form -->
+        <div class="card mb-3">
+          <div class="card-body">
+            <form id="bookingFilterForm" class="row g-2">
+              <div class="col-md-3">
+                <input type="text" class="form-control" id="filterCustomerName" placeholder="Search by Customer Name">
+              </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control" id="filterPhone" placeholder="Search by Phone">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filterStatus">
+                  <option value="">All Booking Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div class="col-md-3 d-grid">
+                <button type="button" class="btn btn-primary" id="applyFilterBtn">Apply Filter</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <table id="booking-table" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer Name</th>
+              <th>Vehicle</th>
+              <th>Booking Details</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Booking Status</th>
+              <th>Cancel Request</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="booking-table-body"></tbody>
+        </table>
+
+        <nav id="paginationNav" class="d-flex justify-content-center mt-3">
+          <ul class="pagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cancel Request Modal -->
+<div class="modal fade" id="cancelRequestModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cancel Request Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><b>Reason:</b> <span id="cancelReasonText"></span></p>
+        <p><b>Requested At:</b> <span id="cancelRequestedAtText"></span></p>
+        <p><b>Status:</b> <span id="cancelStatusText"></span></p>
+        <p><b>Action By:</b> <span id="cancelActionByText"></span></p>
+        <p><b>Action At:</b> <span id="cancelActionAtText"></span></p>
+        <input type="hidden" id="cancelBookingId">
+        <input type="hidden" id="cancelBookingStatus">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="rejectCancelBtn">Reject</button>
+        <button type="button" class="btn btn-success" id="approveCancelBtn">Approve</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirmModalBody">
+        Are you sure you want to proceed?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmModalProceedBtn">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toastSuccess" class="toast align-items-center text-bg-success" role="alert">
+  <div class="d-flex">
+    <div class="toast-body">Action completed successfully!</div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<div id="toastError" class="toast align-items-center text-bg-danger" role="alert">
+  <div class="d-flex">
+    <div class="toast-body">There was an error processing the action.</div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('jwtToken');
+  let currentPage = 1;
+  let confirmAction = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await TokenCheck();
+    await fetchBookingsData(1);
+
+    document.getElementById('filterPhone').addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
+
+    document.getElementById('applyFilterBtn').addEventListener('click', () => fetchBookingsData(1));
+
+    document.getElementById('approveCancelBtn').addEventListener('click', () => {
+      const bookingId = document.getElementById('cancelBookingId').value;
+      showConfirmModal("Approve Cancel Request", "Are you sure to approve this cancellation?", () => confirmCancelRequest(bookingId, 'approve'));
+    });
+
+    document.getElementById('rejectCancelBtn').addEventListener('click', () => {
+      const bookingId = document.getElementById('cancelBookingId').value;
+      showConfirmModal("Reject Cancel Request", "Are you sure to reject this cancellation?", () => confirmCancelRequest(bookingId, 'reject'));
+    });
+
+    document.getElementById('confirmModalProceedBtn').addEventListener('click', async () => {
+      if (typeof confirmAction === 'function') {
+        await confirmAction();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmActionModal'));
+        modal.hide();
+      }
+    });
+  });
+
+  function showConfirmModal(title, message, action) {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalBody').textContent = message;
+    confirmAction = action;
+    new bootstrap.Modal(document.getElementById('confirmActionModal')).show();
+  }
+
+  async function fetchBookingsData(page = 1) {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
+    const customerName = document.getElementById('filterCustomerName').value.trim();
+    const phone = document.getElementById('filterPhone').value.trim();
+    const status = document.getElementById('filterStatus').value;
+    const location = document.getElementById('locationFilter')?.value;
+
+    const params = new URLSearchParams({ page, limit: 10, customerName, phone, status, location });
+
+    try {
+      const response = await fetch(`/api/bookings/list?${params}`, {
+        headers: { 'Authorization': token }
+      });
+
+      const { bookings, totalPages } = await response.json();
+      renderBookingTable(bookings);
+      renderPagination(totalPages, page);
+      currentPage = page;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      showToast('Error fetching bookings', 'error');
+    } finally {
+      loader.style.display = 'none';
+    }
+  }
+
+  function renderPagination(totalPages, current) {
+    const pagination = document.querySelector('#paginationNav .pagination');
+    pagination.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.classList.add('page-item', i === current && 'active');
+      const btn = document.createElement('button');
+      btn.classList.add('page-link');
+      btn.textContent = i;
+      btn.onclick = () => fetchBookingsData(i);
+      li.appendChild(btn);
+      pagination.appendChild(li);
+    }
+  }
+
+  function renderBookingTable(bookings) {
+    const tbody = document.getElementById('booking-table-body');
+    tbody.innerHTML = '';
+
+    bookings.forEach((b, i) => {
+      const {
+        _id, customerName, user, vehicle, dateFrom, dateTo,
+        numberOfDays, price, totalAmount, status,
+        cancelRequest, cancelReason, cancelRequestedAt,
+        cancelRequestStatus, cancelRequestActionBy, cancelRequestActionAt, createdAt
+      } = b;
+
+      const cancelBtn = cancelRequest ? `
+        <button class="btn btn-warning btn-sm view-cancel-btn" data-bs-toggle="modal" data-bs-target="#cancelRequestModal"
+          data-details='${JSON.stringify({
+            reason: cancelReason || '',
+            requestedAt: cancelRequestedAt ? new Date(cancelRequestedAt).toLocaleString() : '',
+            status: cancelRequestStatus || '',
+            actionBy: cancelRequestActionBy?.name || '',
+            actionAt: cancelRequestActionAt ? new Date(cancelRequestActionAt).toLocaleString() : '',
+            bookingId: _id,
+            bookingStatus: status
+          })}'>View Cancel Request</button>
+      ` : '-';
+
+      const completeBtn = status === 'confirmed' ? `<button class="btn btn-success btn-sm complete-btn" data-booking-id="${_id}">Complete Ride</button>` : '-';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${customerName}<br><small>${user?.phone || ''}</small></td>
+        <td>${vehicle.brand}<br><small>${vehicle.model}</small></td>
+        <td><b>From:</b> ${new Date(dateFrom).toLocaleDateString()}<br><b>To:</b> ${new Date(dateTo).toLocaleDateString()}<br><b>Location:</b> ${vehicle.location.name}<br><b>Days:</b> ${numberOfDays}</td>
+        <td>₹${price}</td>
+        <td>₹${totalAmount}</td>
+        <td>${status}<br><small>Created: ${new Date(createdAt).toLocaleDateString()}</small></td>
+        <td>${cancelBtn}</td>
+        <td>${completeBtn}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    document.querySelectorAll('.complete-btn').forEach(btn => {
+      btn.onclick = () => {
+        const bookingId = btn.dataset.bookingId;
+        showConfirmModal("Complete Booking", "Are you sure to complete this booking?", () => markBookingAsCompleted(bookingId));
+      };
+    });
+
+    document.querySelectorAll('.view-cancel-btn').forEach(btn => {
+      btn.onclick = () => {
+        const data = JSON.parse(btn.dataset.details);
+        document.getElementById('cancelReasonText').textContent = data.reason || '-';
+        document.getElementById('cancelRequestedAtText').textContent = data.requestedAt || '-';
+        document.getElementById('cancelStatusText').textContent = data.status || '-';
+        document.getElementById('cancelActionByText').textContent = data.actionBy || '-';
+        document.getElementById('cancelActionAtText').textContent = data.actionAt || '-';
+        document.getElementById('cancelBookingId').value = data.bookingId;
+        document.getElementById('cancelBookingStatus').value = data.bookingStatus;
+
+        const showActions = !['completed', 'cancelled'].includes(data.bookingStatus);
+        document.getElementById('approveCancelBtn').style.display = showActions ? 'inline-block' : 'none';
+        document.getElementById('rejectCancelBtn').style.display = showActions ? 'inline-block' : 'none';
+      };
+    });
+  }
+
+  async function markBookingAsCompleted(bookingId) {
+    try {
+      const res = await fetch('/api/bookings/complete-booking', {
+        method: 'POST',
+        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId })
+      });
+      const result = await res.json();
+      res.ok ? showToast('Booking marked as completed') : showToast(result.message, 'error');
+      fetchBookingsData(currentPage);
+    } catch (err) {
+      console.error(err);
+      showToast('Error marking as completed', 'error');
+    }
+  }
+
+  async function confirmCancelRequest(bookingId, action) {
+    try {
+      const res = await fetch('/api/bookings/confirm-cancel-request', {
+        method: 'POST',
+        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, action })
+      });
+      const result = await res.json();
+      res.ok ? showToast(`Cancel request ${action}d`) : showToast(result.message, 'error');
+      bootstrap.Modal.getInstance(document.getElementById('cancelRequestModal')).hide();
+      fetchBookingsData(currentPage);
+    } catch (err) {
+      console.error(err);
+      showToast('Error confirming cancel request', 'error');
+    }
+  }
+
+  function showToast(message, type = 'success') {
+    const toastEl = document.getElementById(`toast${type.charAt(0).toUpperCase() + type.slice(1)}`);
+    toastEl.querySelector('.toast-body').textContent = message;
+    new bootstrap.Toast(toastEl).show();
+  }
+</script>
+
+<%- include('partials/footer') %>

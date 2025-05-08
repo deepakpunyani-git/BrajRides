@@ -10,9 +10,9 @@ exports.getDashboard = async (req, res) => {
     let weekEnd = moment().endOf('week');
     let response = {};
 
-    if (user.usertype === 'admin') {
-      let totalClients = await User.countDocuments({ usertype: 'client' });
-      let totalStaff = await User.countDocuments({ usertype: 'staff' });
+    if (user.userType === 'admin') {
+      let totalClients = await User.countDocuments({ userType: 'client' });
+      let totalStaff = await User.countDocuments({ userType: 'staff' });
       let last10NewUsers = await User.find({}).select('name email').sort({ dateCreated: -1 }).limit(10);
 
       response = {
@@ -20,8 +20,8 @@ exports.getDashboard = async (req, res) => {
         totalStaff,
         last10NewUsers,
       };
-    } else if (user.usertype === 'staff') {
-      let totalClients = await User.countDocuments({ usertype: 'client' });
+    } else if (user.userType === 'staff') {
+      let totalClients = await User.countDocuments({ userType: 'client' });
       let last10NewUsers = await User.find({}).sort({ dateCreated: -1 }).limit(10);
 
       response = {
