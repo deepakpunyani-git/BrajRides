@@ -73,29 +73,23 @@ exports.search = async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    const overlappingBookings = await Booking.find({
+    const bookedVehicleIds = await Booking.find({
       status: "confirmed",
       $or: [
-        {
-          dateFrom: { $lte: end },
-          dateTo: { $gte: start }
-        }
+        { dateFrom: { $lte: end }, dateTo: { $gte: start } }
       ]
-    }).select("vehicle");
-    
-
-    const bookedVehicleIds = overlappingBookings.map(booking => booking.vehicle.toString());
+    }).distinct('vehicle');
 
     const filter = {
       location,
-      _id: { $nin: bookedVehicleIds }, 
+      _id: { $nin: bookedVehicleIds },
     };
     if (type) filter.type = type;
     if (typeof isElectric === 'boolean') filter.isElectric = isElectric;
 
     const availableVehicles = await Ride.find(filter).populate('location', 'name');
 
-    res.json(availableVehicles);
+    res.json({ success: true, vehicles: availableVehicles });
   } catch (error) {
     console.error('Error fetching vehicles:', error);
     res.status(500).json({ message: 'Server error' });

@@ -313,7 +313,7 @@
 
   async function confirmCancelRequest(bookingId, action) {
     try {
-      const res = await fetch('/api/bookings/confirm-cancel-request', {
+      const res = await fetch('/api/booking/confirm-cancel-request', {
         method: 'POST',
         headers: { 'Authorization': token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, action })

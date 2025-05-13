@@ -1,13 +1,12 @@
 <%- include('partials/header') %>
+
 <section id="dashboard" class="section">
   <div class="container section-title" data-aos="fade-up">
     <h2>Dashboard</h2>
     <%- include('partials/submenu') %>
   </div>
   <div class="container" data-aos="fade-up" data-aos-delay="100">
-    <div class="row gy-4" id="dashboard-data">
-
-    </div>
+    <div class="row gy-4" id="dashboard-data"></div>
   </div>
 </section>
 
@@ -27,140 +26,79 @@
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
+      if (!response.ok) throw new Error('Failed to fetch dashboard data');
 
       const data = await response.json();
       const dashboardData = document.getElementById('dashboard-data');
-
-      // Clear previous data
       dashboardData.innerHTML = '';
 
-      // Helper function to create and append cards
-      function createCard(title, content) {
-        const card = document.createElement('div');
-        card.className = 'col-md-4';
-        card.innerHTML = `<div class="card"><div class="card-body"><h5>${title}</h5><p>${content}</p></div></div>`;
-        dashboardData.appendChild(card);
-      }
+      const createCard = (title, value) => {
+        const div = document.createElement('div');
+        div.className = 'col-md-4';
+        div.innerHTML = `
+          <div class="card shadow">
+            <div class="card-body">
+              <h5 class="card-title">${title}</h5>
+              <p class="card-text fs-4">${value}</p>
+            </div>
+          </div>
+        `;
+        dashboardData.appendChild(div);
+      };
 
-      // Helper function to create and append tables
-      function createTable(title, headers, rows) {
-        const tableContainer = document.createElement('div');
-        tableContainer.className = 'col-md-12';
-        const tableCard = document.createElement('div');
-        tableCard.className = 'card';
-        const tableCardBody = document.createElement('div');
-        tableCardBody.className = 'card-body';
-        const tableTitle = document.createElement('h5');
-        tableTitle.textContent = title;
+      const createTable = (title, headers, rows) => {
+        const container = document.createElement('div');
+        container.className = 'col-md-12';
 
-        const table = document.createElement('table');
-        table.className = 'table table-striped';
+        const headerHTML = headers.map(h => `<th>${h}</th>`).join('');
+        const rowHTML = rows.map(row =>
+          `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+        ).join('');
 
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        headers.forEach(header => {
-          const th = document.createElement('th');
-          th.textContent = header;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
+        container.innerHTML = `
+          <div class="card shadow mb-4">
+            <div class="card-body">
+              <h5 class="card-title">${title}</h5>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead><tr>${headerHTML}</tr></thead>
+                  <tbody>${rowHTML}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+        dashboardData.appendChild(container);
+      };
 
-        const tbody = document.createElement('tbody');
-        rows.forEach(row => {
-          const tr = document.createElement('tr');
-          row.forEach(cell => {
-            const td = document.createElement('td');
-            td.textContent = cell;
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
+      createCard("Today's Bookings", data.totalBookingsToday ?? 0);
+      createCard("Today's Cancellations", data.totalCancellationsToday ?? 0);
+      createCard("Today's Confirmations", data.totalConfirmedToday ?? 0);
+      createCard("This Week's Bookings", data.totalBookingsThisWeek ?? 0);
+      createCard("This Month's Bookings", data.totalBookingsThisMonth ?? 0);
 
-        tableCardBody.appendChild(tableTitle);
-        tableCardBody.appendChild(table);
-        tableCard.appendChild(tableCardBody);
-        tableContainer.appendChild(tableCard);
-        dashboardData.appendChild(tableContainer);
-      }
-
-      // Conditional checks and HTML creation
-      if ('setupCompleted' in data) {
-        createCard('Setup Completed', data.setupCompleted ? 'Yes' : 'No');
-      }
-
-      if ('totalClients' in data) {
-        createCard('Total Clients', data.totalClients);
-      }
-
-      if ('totalStaff' in data) {
-        createCard('Total Staff', data.totalStaff);
-      }
-
-      if ('countTodaysMessages' in data) {
-        createCard('Today\'s Messages', data.countTodaysMessages);
-      }
-
-      if ('unreadMsgCount' in data) {
-        createCard('Unread Messages', data.unreadMsgCount);
-      }
-
-      if ('totalReminders' in data) {
-        createCard('Total Reminders', data.totalReminders);
-      }
-
-      if ('todayPayments' in data) {
-        createCard('Today\'s Payments', data.todayPayments);
-      }
-
-      if ('thisWeekPayments' in data) {
-        const headers = ['Reminder', 'Amount', 'Notification Date'];
-        const rows = data.thisWeekPayments.map(payment => [
-          payment.payReminderID.name,
-          payment.amount,
-          new Date(payment.notificationDate).toLocaleDateString()
+      if (Array.isArray(data.bookingsTomorrow) && data.bookingsTomorrow.length > 0) {
+        const headers = ['Customer', 'Vehicle', 'From', 'To'];
+        const rows = data.bookingsTomorrow.map(b => [
+          b.user?.name || 'N/A',
+          b.vehicle?.name || 'N/A',
+          new Date(b.dateFrom).toLocaleDateString(),
+          new Date(b.dateTo).toLocaleDateString(),
         ]);
-        createTable('This Week\'s Payments', headers, rows);
+        createTable("Tomorrow's Bookings", headers, rows);
       }
 
-      if ('last10NewUsers' in data) {
-        const headers = ['Name', 'Email'];
-        const rows = data.last10NewUsers.map(user => [
-          user.name,
-          user.email || '-'
-        ]);
-        createTable('Last 10 New Users', headers, rows);
-      }
-
-      if ('todaysMessages' in data) {
-        const headers = ['Name', 'Message'];
-        const rows = data.todaysMessages.map(message => [
-          message.name,
-          message.message
-        ]);
-        createTable('User Messages', headers, rows);
-      }
-
-      if ('unreadMessages' in data) {
-        const headers = ['Name', 'Message'];
-        const rows = data.unreadMessages.map(message => [
-          message.name,
-          message.message
-        ]);
-        createTable('Unread User Messages', headers, rows);
+      if (Array.isArray(data.bookingsByVehicle) && data.bookingsByVehicle.length > 0) {
+        const headers = ['Vehicle', 'Total Bookings'];
+        const rows = data.bookingsByVehicle.map(b => [b.name, b.count]);
+        createTable("Bookings by Vehicle", headers, rows);
       }
 
     } catch (error) {
-      console.error('Fetch dashboard data error:', error.message);
+      console.error('Dashboard error:', error);
       showToast('Failed to fetch dashboard data', 'danger');
     }
   }
 </script>
-
-
 
 <%- include('partials/footer') %>

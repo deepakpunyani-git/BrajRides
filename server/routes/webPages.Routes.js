@@ -14,8 +14,8 @@ router.get("/login", (req, res) => {
 
 
 /* Dashboard Pages */
-router.get("/dashboard", (req, res) => {
-  res.render('dashboard', { title:'BrajRides | Dashboard' , site:CLIENT_URL });
+router.get("/dashboard", async(req, res) => {
+  res.render('dashboard', { title:'BrajRides | Dashboard' , site:CLIENT_URL  });
 });
 
 

@@ -104,37 +104,7 @@ exports.requestCancel = async (req, res) => {
   }
 };
 
-exports.actionCancelRequest = async (req, res) => {
-  const { bookingId, action } = req.body;  
 
-  if (!['approve', 'reject'].includes(action)) {
-    return res.status(400).json({ message: 'Invalid action' });
-  }
-
-  try {
-    const booking = await Booking.findById(bookingId);
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
-
-    if (!booking.cancelRequest) {
-      return res.status(400).json({ message: 'No cancel request found' });
-    }
-
-    booking.cancelRequestStatus = action === 'approve' ? 'approved' : 'rejected';
-    booking.cancelRequestActionBy = req.user._id;
-    booking.cancelRequestActionAt = new Date();
-
-    if (action === 'approve') {
-      booking.status = 'cancelled';
-    }
-
-    await booking.save();
-    res.json({ message: `Cancel request ${action}d successfully` });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
 exports.getMyBookings = async (req, res) => {
   try {

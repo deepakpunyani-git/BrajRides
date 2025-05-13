@@ -73,7 +73,7 @@ const bookingSchema = new mongoose.Schema(
     cancelRequestActionAt: {
       type: Date,
     }, 
-
+    cardLast4: { type: String },
   },
   
   { timestamps: true }
