@@ -4,7 +4,6 @@ const path = require('path');
 const cors = require('cors');
 const connectDB = require('./db');
 const routes = require('./routes/index');
-const sseRoutes = require('./routes/sse');
 
 dotenv.config();
 
@@ -29,7 +28,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', routes);
-app.use('/api', sseRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
