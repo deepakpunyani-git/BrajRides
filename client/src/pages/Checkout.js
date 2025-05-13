@@ -165,7 +165,11 @@ const Checkout = () => {
             <Card className="mb-4 shadow border-0 rounded-4">
               <Card.Img
                 variant="top"
-                src={bookingData.vehicle.imageUrl || '/default-bike.jpg'}
+                src={
+                  bookingData.vehicle.image
+                    ? `${process.env.REACT_APP_API_URL}/uploads/${bookingData.vehicle.image}`
+                    : `${process.env.PUBLIC_URL}/images/default-bike.jpg`
+                }  
                 alt="Vehicle"
                 className="rounded-top-4"
               />

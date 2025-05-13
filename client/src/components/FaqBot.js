@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-// FAQ data with keywords and corresponding answers
 const faqData = [
   { keywords: ['cancel', 'cancellation'], answer: 'You can request a booking cancellation from the "My Bookings" page if your booking starts in more than 24 hours.' },
   { keywords: ['refund'], answer: 'Refunds are processed within 5-7 business days after cancellation approval.' },
@@ -24,7 +23,6 @@ const faqData = [
   { keywords: ['account', 'login', 'register'], answer: 'You can log in or register through the "Account" page to manage your bookings and preferences.' },
 ];
 
-// Function to retrieve the bot's response based on user message
 const getFaqAnswer = (userMessage) => {
   const lowerMsg = userMessage.toLowerCase();
   for (const faq of faqData) {

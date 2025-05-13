@@ -213,8 +213,7 @@ const Pricing = () => {
             </Card.Body>
           </Card>
 
-          {/* Electric Filter */}
-          <Card className="mb-3">
+         <Card className="mb-3">
             <Card.Body className="d-flex align-items-center">
               <FaBolt size={20} className="mr-2" />
               <span>Electric: </span>
@@ -264,8 +263,11 @@ const Pricing = () => {
                       <Card className="h-100 shadow">
                       <Card.Img
   variant="top"
-  src={vehicle.imageUrl || `${process.env.PUBLIC_URL}/images/default-bike.jpg`}
-  alt={`${vehicle.brand} ${vehicle.model}`}
+  src={
+    vehicle.image
+      ? `${process.env.REACT_APP_API_URL}/uploads/${vehicle.image}`
+      : `${process.env.PUBLIC_URL}/images/default-bike.jpg`
+  }  alt={`${vehicle.brand} ${vehicle.model}`}
 />                        <Card.Body>
                           <Card.Title>{`${vehicle.brand} ${vehicle.model}`}</Card.Title>
                           <Card.Text>

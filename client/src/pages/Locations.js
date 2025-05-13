@@ -18,7 +18,7 @@ const Locations = () => {
 
         <Row>
           {locations.map((loc) => (
-            <Col md={6} key={loc.id || loc._id} className="location-card mb-4">
+            <Col md={6} key={loc._id} className="location-card mb-4">
               <h4>{loc.name}</h4>
               <p>{loc.address}</p>
               <p><strong>Phone:</strong> {loc.phone}</p>

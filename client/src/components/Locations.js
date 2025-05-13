@@ -12,7 +12,7 @@ const Locations = ({ locations }) => {
         <Row>
         {locations.map((loc) => (
           <Col md={6}>
-              <div key={loc.id} className="location-card">
+              <div key={loc._id} className="location-card">
                 <h4>{loc.name}</h4>
                 <p>{loc.address}</p>
                 <p>Phone: {loc.phone}</p>

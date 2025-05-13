@@ -26,7 +26,7 @@ const initialState = {
       case 'BIKE_LIST_REQUEST':
         return { ...state, loading: true };
       case 'BIKE_LIST_SUCCESS':
-        return { loading: false, vehicles: action.payload, error: null };
+        return { loading: false, vehicles: action.payload.vehicles, error: null };
       case 'BIKE_LIST_FAIL':
         return { loading: false, error: action.payload, vehicles: [] };
       default:
