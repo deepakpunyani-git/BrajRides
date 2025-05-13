@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+// FAQ data with keywords and corresponding answers
 const faqData = [
   { keywords: ['cancel', 'cancellation'], answer: 'You can request a booking cancellation from the "My Bookings" page if your booking starts in more than 24 hours.' },
   { keywords: ['refund'], answer: 'Refunds are processed within 5-7 business days after cancellation approval.' },
@@ -23,6 +24,7 @@ const faqData = [
   { keywords: ['account', 'login', 'register'], answer: 'You can log in or register through the "Account" page to manage your bookings and preferences.' },
 ];
 
+// Function to retrieve the bot's response based on user message
 const getFaqAnswer = (userMessage) => {
   const lowerMsg = userMessage.toLowerCase();
   for (const faq of faqData) {
@@ -36,10 +38,10 @@ const getFaqAnswer = (userMessage) => {
 };
 
 const FaqBot = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const chatEndRef = useRef(null); 
-  const [input, setInput] = useState('');
-  const [chat, setChat] = useState([
+  const [isOpen, setIsOpen] = useState(false);  
+  const chatEndRef = useRef(null);  
+  const [input, setInput] = useState('');  
+  const [chat, setChat] = useState([  
     { type: 'bot', text: 'Hi! I\'m your assistant. How can I help you today?' },
   ]);
 
@@ -48,13 +50,13 @@ const FaqBot = () => {
   }, [chat]);
 
   const sendMessage = () => {
-    if (!input.trim()) return;
+    if (!input.trim()) return;  
 
-    const userMsg = { type: 'user', text: input };
-    const botReply = { type: 'bot', text: getFaqAnswer(input) };
+    const userMsg = { type: 'user', text: input };  
+    const botReply = { type: 'bot', text: getFaqAnswer(input) };  
     
-    setChat((prev) => [...prev, userMsg, botReply]);
-    setInput('');
+    setChat((prev) => [...prev, userMsg, botReply]); 
+    setInput('');  
   };
 
   const handleKeyPress = (e) => {
@@ -75,6 +77,7 @@ const FaqBot = () => {
                 <div className="msg-text">{msg.text}</div>
               </div>
             ))}
+            <div ref={chatEndRef} /> 
           </div>
           <div className="faq-bot-input d-flex">
             <input
@@ -83,7 +86,7 @@ const FaqBot = () => {
               placeholder="Ask a question..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyPress={handleKeyPress}  
             />
             <button className="btn btn-primary ms-1" onClick={sendMessage}>Send</button>
           </div>
