@@ -10,9 +10,16 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const CLIENT_URL = process.env.CLIENT_URL;
 
-app.use(cors({ origin: CLIENT_URL }));
+const corsOptions = {
+  origin: process.env.CLIENT_URL || '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,7 +29,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', routes);
-app.use('/sse', sseRoutes);
+const sseRoutes = require('./routes/sse');
+app.use('/api', sseRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
