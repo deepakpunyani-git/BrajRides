@@ -1,27 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-
-const socket = io(process.env.REACT_APP_API_URL);
+import React, { useEffect, useState } from 'react';
 
 const FaqBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [chat, setChat] = useState([]);
 
-  const toggleBot = () => setIsOpen(!isOpen);
-
   useEffect(() => {
-    socket.on('faqAnswer', (data) => {
-      setChat((prevChat) => [...prevChat, { type: 'bot', text: data.answer }]);
-    });
+    const es = new EventSource('/api/faq');
 
-    return () => socket.off('faqAnswer');
+    es.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.message) {
+        setChat(prev => [...prev, { type: 'bot', text: data.message }]);
+      }
+    };
+
+    es.onerror = () => {
+      console.error('SSE connection lost.');
+      es.close();
+    };
+
+    return () => es.close();
   }, []);
 
-  const sendMessage = () => {
-    if (input.trim() === '') return;
-    setChat((prevChat) => [...prevChat, { type: 'user', text: input }]);
-    socket.emit('faqQuestion', input);
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    setChat(prev => [...prev, { type: 'user', text: input }]);
+
+    const res = await fetch('/api/faq', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: input }),
+    });
+
+    const data = await res.json();
+    setChat(prev => [...prev, { type: 'bot', text: data.answer }]);
     setInput('');
   };
 
@@ -35,7 +49,7 @@ const FaqBot = () => {
         <div className="faq-bot-card shadow rounded">
           <div className="faq-bot-header d-flex justify-content-between align-items-center">
             <h6 className="m-0">❓ FAQ Bot</h6>
-            <button className="btn btn-sm btn-outline-secondary" onClick={toggleBot}>–</button>
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => setIsOpen(false)}>–</button>
           </div>
           <div className="faq-bot-body">
             {chat.map((msg, idx) => (
@@ -57,7 +71,7 @@ const FaqBot = () => {
           </div>
         </div>
       ) : (
-        <button className="faq-bot-toggle btn btn-primary rounded-circle shadow" onClick={toggleBot}>
+        <button className="faq-bot-toggle btn btn-primary rounded-circle shadow" onClick={() => setIsOpen(true)}>
           ?
         </button>
       )}
