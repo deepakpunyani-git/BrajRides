@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 const faqData = [
   { keywords: ['cancel', 'cancellation'], answer: 'You can request a booking cancellation from the "My Bookings" page if your booking starts in more than 24 hours.' },
@@ -37,10 +37,15 @@ const getFaqAnswer = (userMessage) => {
 
 const FaqBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const chatEndRef = useRef(null); 
   const [input, setInput] = useState('');
   const [chat, setChat] = useState([
     { type: 'bot', text: 'Hi! I\'m your assistant. How can I help you today?' },
   ]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chat]);
 
   const sendMessage = () => {
     if (!input.trim()) return;
