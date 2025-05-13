@@ -26,10 +26,10 @@ app.use('/sse', sseRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port -  ${PORT}`);
   });
 }).catch((err) => {
   console.error('❌ Error connecting to DB:', err);
 });
-
+  
 module.exports = app;
