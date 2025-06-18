@@ -80,7 +80,7 @@
       if (Array.isArray(data.bookingsTomorrow) && data.bookingsTomorrow.length > 0) {
         const headers = ['Customer', 'Vehicle', 'From', 'To'];
         const rows = data.bookingsTomorrow.map(b => [
-          b.user?.name || 'N/A',
+          b.user?.name || b.customerName,
           b.vehicle?.name || 'N/A',
           new Date(b.dateFrom).toLocaleDateString(),
           new Date(b.dateTo).toLocaleDateString(),

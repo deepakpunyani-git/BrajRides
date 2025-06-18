@@ -33,32 +33,42 @@ exports.getDashboard = async (req, res) => {
       Booking.countDocuments({ ...locationFilter, createdAt: { $gte: weekStart, $lte: weekEnd } }),
       Booking.countDocuments({ ...locationFilter, createdAt: { $gte: monthStart, $lte: monthEnd } }),
       Booking.find({ ...locationFilter, dateFrom: { $gte: tomorrow, $lte: tomorrowEnd } })
-        .populate('user', 'name email')
-        .populate('vehicle', 'name'),
-      Booking.aggregate([
-        { $match: { ...locationFilter } },
-        {
-          $group: {
-            _id: '$vehicle',
-            count: { $sum: 1 }
-          }
-        },
-        {
-          $lookup: {
-            from: 'ridesvehicles',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'vehicle'
-          }
-        },
-        { $unwind: '$vehicle' },
-        {
-          $project: {
-            name: '$vehicle.name',
-            count: 1
-          }
-        }
-      ])
+        .populate('vehicle', 'brand model'),
+Booking.aggregate([
+  {
+    $match: {
+      ...locationFilter 
+    }
+  },
+  {
+    $group: {
+      _id: '$vehicle',      
+      count: { $sum: 1 }     
+    }
+  },
+  {
+    $lookup: {
+      from: 'ridesvehicles', 
+      localField: '_id',
+      foreignField: '_id',
+      as: 'vehicle'
+    }
+  },
+  {
+    $unwind: '$vehicle' 
+  },
+  {
+    $project: {
+      _id: 0,
+      vehicleId: '$_id',
+      name: { $concat: ['$vehicle.brand', ' ', '$vehicle.model'] },
+      count: 1
+    }
+  },
+  {
+    $sort: { count: -1 } 
+  }
+])
     ]);
 
     res.json({
