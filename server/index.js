@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const connectDB = require('./db');
 const routes = require('./routes/index');
+const dbConnectMiddleware = require('./middleware/dbConnectMiddleware');
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(dbConnectMiddleware);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,12 +31,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', routes);
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port -  ${PORT}`);
-  });
-}).catch((err) => {
-  console.error('❌ Error connecting to DB:', err);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port - ${PORT}`);
 });
-  
-module.exports = app;
+
+exports = app;
